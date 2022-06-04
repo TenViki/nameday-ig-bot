@@ -1,6 +1,9 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { decode } from "./decode";
+import { decode } from "./decode.util";
+import htmlToImage from "node-html-to-image";
+import fs from "fs/promises";
+import { formatMonth } from "./month.util";
 
 export interface Name {
   name: string;
@@ -18,6 +21,28 @@ export default class NameDay {
   public loaded = false;
 
   constructor() {}
+
+  private formatHtml(html: string, name: Name) {
+    return html
+      .replaceAll("{{day}}", formatMonth(name.day))
+      .replaceAll("{{name}}", name.name)
+      .replaceAll("{{origin}}", name.origin)
+      .replaceAll("{{meaning}}", name.meaning)
+      .replaceAll("{{area}}", name.area)
+      .replaceAll("{{amount}}", name.amount)
+      .replaceAll("{{rank}}", name.popularityRank)
+      .replaceAll("{{age}}", name.averageAge);
+  }
+
+  async createImage(index: number) {
+    if (!this.names) throw new Error("Name not loaded");
+    const html = await fs.readFile("./src/template/name.html", "utf8");
+    const a = await htmlToImage({
+      html: this.formatHtml(html, this.names[index]),
+      output: `./tmp/${Date.now()}.png`,
+    });
+    return a;
+  }
 
   async fetchName(options?: {
     url?: string;

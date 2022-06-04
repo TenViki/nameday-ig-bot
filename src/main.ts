@@ -26,9 +26,10 @@ const main = async () => {
     const name = new NameDay();
     const names = await name.fetchName({
       fetchOther: true,
+      url: "https://www.nasejmena.cz/nj/cetnost.php?id=3770&typ=jmeno",
     });
 
-    console.log(names);
+    name.createImage(0);
   } catch (err) {
     console.log("Something went wrong: ", err);
   }

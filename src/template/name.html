@@ -24,6 +24,8 @@
             width: 1080px;
             height: 1080px;
             margin: 0;
+            position: relative;
+            padding: 1rem;
         }
 
         .background{
@@ -39,11 +41,11 @@
         }
 
         .post {
-            margin: 1rem;
+            /* margin: 1rem; */
             background-color: #00000099;
             color: #fff;
             backdrop-filter: blur(50px);
-            height: calc(100% - 2rem);
+            height: 100%;
             padding: 1rem;
             border-radius: 1rem;
             display: flex;
@@ -95,7 +97,7 @@
             </div>
             <div class="grid-item">
                 <div class="grid-item-name">Pořadí</div>
-                <div class="grid-item-value">{{rank}}</div>
+                <div class="grid-item-value">{{rank}}.</div>
             </div>
             <div class="grid-item">
                 <div class="grid-item-name">Počet nositelů</div>
@@ -107,7 +109,7 @@
             </div>
             <div class="grid-item">
                 <div class="grid-item-name">Průměrný věk</div>
-                <div class="grid-item-value">{{age}}</div>
+                <div class="grid-item-value">{{age}} let</div>
             </div>
             <div class="grid-item">
                 <div class="grid-item-name">Populární v</div>
