@@ -7,7 +7,7 @@ export default class NameDay {
 
   async fetchName() {
     const response = await axios.get(
-      "https://www.nasejmena.cz/nj/cetnost.php",
+      "https://www.nasejmena.cz/nj/cetnost.php?id=121278&typ=jmeno",
       {
         responseType: "arraybuffer",
         responseEncoding: "binary",
