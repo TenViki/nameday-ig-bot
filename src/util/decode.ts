@@ -157,7 +157,7 @@ const INDEX_BY_POINTER = new Map([
   [23, "\x97"],
   [24, "\x98"],
   [25, "\x99"],
-  [26, "\x9A"],
+  [26, "\u0161"],
   [27, "\x9B"],
   [28, "\x9C"],
   [29, "\x9D"],
@@ -331,6 +331,7 @@ export const decode = (
       buffer.push(decodingError(mode));
     }
   }
+
   const result = buffer.join("");
   return result;
 };
