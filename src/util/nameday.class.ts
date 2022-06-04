@@ -2,12 +2,26 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { decode } from "./decode";
 
+export interface Name {
+  name: string;
+  amount: string;
+  popularityRank: string;
+  averageAge: string;
+  day: string;
+  origin: string;
+  meaning: string;
+  area: string;
+}
+
 export default class NameDay {
   constructor() {}
 
-  async fetchName() {
+  async fetchName(options?: {
+    url?: string;
+    fetchOther?: boolean;
+  }): Promise<Name[] | null> {
     const response = await axios.get(
-      "https://www.nasejmena.cz/nj/cetnost.php?id=121278&typ=jmeno",
+      options?.url || "https://www.nasejmena.cz/nj/cetnost.php",
       {
         responseType: "arraybuffer",
         responseEncoding: "binary",
@@ -28,11 +42,9 @@ export default class NameDay {
     const matches = nameText.match(nameRegex);
     if (!matches || matches.length < 4) return null;
 
-    console.log(subName, subName.charCodeAt(72));
     const subNameRegex =
       /(\d+\.\d+\.)|((?<=p[uů]vod: )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)|((?<=v[yý]znam: )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)|((?<=oblasti )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)/gm;
     const subMatches = subName.match(subNameRegex);
-    console.log(subMatches);
     if (!subMatches || subMatches.length < 4) return null;
 
     const name = {
@@ -46,6 +58,29 @@ export default class NameDay {
       area: subMatches[3],
     };
 
-    console.log(name);
+    const others: Name[] = [];
+
+    if (options?.fetchOther) {
+      const a = $(".dolnitext").children();
+
+      for (const el of a) {
+        const text = $(el).text();
+        const href = $(el).attr("href");
+        if (
+          el.name === "a" &&
+          href?.match(/cetnost\.php\?id=\d+&typ=jmeno/gm)
+        ) {
+          const names = await this.fetchName({
+            url: "https://www.nasejmena.cz/nj/" + href,
+            fetchOther: false,
+          });
+          if (!names) continue;
+
+          others.push(names[0]);
+        }
+      }
+    }
+
+    return [name, ...others];
   }
 }

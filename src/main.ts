@@ -24,7 +24,11 @@ const main = async () => {
     // console.log(`Logged in as ${loggedInUser.username}`);
 
     const name = new NameDay();
-    await name.fetchName();
+    const names = await name.fetchName({
+      fetchOther: true,
+    });
+
+    console.log(names);
   } catch (err) {
     console.log("Something went wrong: ", err);
   }
