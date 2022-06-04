@@ -14,6 +14,9 @@ export interface Name {
 }
 
 export default class NameDay {
+  public names: Name[] | null = null;
+  public loaded = false;
+
   constructor() {}
 
   async fetchName(options?: {
@@ -81,6 +84,7 @@ export default class NameDay {
       }
     }
 
+    this.names = [name, ...others];
     return [name, ...others];
   }
 }
