@@ -1,6 +1,7 @@
 import { IgApiClient } from "instagram-private-api";
 import dotenv from "dotenv";
 import { exit } from "process";
+import NameDay from "./util/nameday.class";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -13,14 +14,17 @@ if (!username || !password) {
   exit();
 }
 
-export const ig = new IgApiClient();
-ig.state.generateDevice(username);
+// export const ig = new IgApiClient();
+// ig.state.generateDevice(username);
 
 const main = async () => {
   try {
-    await ig.simulate.preLoginFlow();
-    const loggedInUser = await ig.account.login(username, password);
-    console.log(`Logged in as ${loggedInUser.username}`);
+    // await ig.simulate.preLoginFlow();
+    // const loggedInUser = await ig.account.login(username, password);
+    // console.log(`Logged in as ${loggedInUser.username}`);
+
+    const name = new NameDay();
+    await name.fetchName();
   } catch (err) {
     console.log("Something went wrong: ", err);
   }
