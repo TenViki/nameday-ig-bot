@@ -40,6 +40,11 @@ export default class NameDay {
     const a = await htmlToImage({
       html: this.formatHtml(html, this.names[index]),
       output: `./tmp/${Date.now()}.png`,
+      puppeteerArgs: {
+        headless: true,
+        ignoreDefaultArgs: true,
+        // args: ["--headless"],
+      },
     });
     return a;
   }
