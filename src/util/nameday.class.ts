@@ -45,16 +45,16 @@ export default class NameDay {
 
   async createImages() {
     if (!this.names) throw new Error("Name not loaded");
-    // const image = await getRandomImage();
+    const image = await getRandomImage();
     const images: string[] = [];
     for (let i = 0; i < this.names.length; i++) {
-      // images.push(await this.createImage(i, image.urls.full));
-      images.push(
-        await this.createImage(
-          i,
-          "https://unsplash.com/photos/_1IF9ReWYY0/download?ixid=MnwxMjA3fDB8MXxzZWFyY2h8M3x8dW5zcGxhc2h8ZW58MHx8fHwxNjU0NjI3MzE3&force=true"
-        )
-      );
+      images.push(await this.createImage(i, image.urls.full));
+      // images.push(
+      //   await this.createImage(
+      //     i,
+      //     "https://unsplash.com/photos/_1IF9ReWYY0/download?ixid=MnwxMjA3fDB8MXxzZWFyY2h8M3x8dW5zcGxhc2h8ZW58MHx8fHwxNjU0NjI3MzE3&force=true"
+      //   )
+      // );
     }
     console.log(images);
     return images;
