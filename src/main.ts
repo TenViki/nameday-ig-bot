@@ -1,7 +1,10 @@
-import { IgApiClient } from "instagram-private-api";
 import dotenv from "dotenv";
 import { exit } from "process";
 import NameDay from "./util/nameday.class";
+import { getRandomImage } from "./util/image.util";
+import * as fs from "fs/promises";
+import { Instagram } from "./util/instagram.class";
+import { CronJob } from "cron";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -14,22 +17,34 @@ if (!username || !password) {
   exit();
 }
 
-// export const ig = new IgApiClient();
-// ig.state.generateDevice(username);
+const loadName = async () => {
+  const name = new NameDay();
+  const names = await name.fetchName({
+    fetchOther: true,
+  });
+
+  console.log("Generating images...");
+  const images = await name.createImages();
+
+  await ig.uploadImages(images, names!);
+
+  for (const image of images) {
+    await fs.unlink(image);
+  }
+};
+
+const ig = new Instagram(username, password);
 
 const main = async () => {
   try {
-    // await ig.simulate.preLoginFlow();
-    // const loggedInUser = await ig.account.login(username, password);
-    // console.log(`Logged in as ${loggedInUser.username}`);
+    // await ig.simulate.postLoginFlow();
+    await ig.setup();
+    await ig.login();
 
-    const name = new NameDay();
-    const names = await name.fetchName({
-      fetchOther: true,
+    new CronJob("0 6 * * *", async () => {
+      console.log("Starting job for " + new Date().toLocaleString());
+      await loadName();
     });
-
-    console.log("Generating images...");
-    name.createImage(0);
   } catch (err) {
     console.log("Something went wrong: ", err);
   }

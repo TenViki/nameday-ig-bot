@@ -11,6 +11,8 @@
     <style>
         :root {
             font-size: 40px;
+            --amount: {{max}};
+            --index: {{index}};
         }
 
         *{
@@ -29,10 +31,11 @@
         }
 
         .background{
-            background-image: url("https://unsplash.it/1080/1080");
+            background-image: url("{{image}}");
             background-size: cover;
+            width: calc(var(--amount) * 100%);
+            transform: translateX(calc(var(--index) * (-100% / var(--amount))));
             background-position: center center;
-            width: 1080px;
             height: 1080px;
             top: 0;
             left: 0;

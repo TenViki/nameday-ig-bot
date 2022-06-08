@@ -4,6 +4,7 @@ import { decode } from "./decode.util";
 import htmlToImage from "node-html-to-image";
 import fs from "fs/promises";
 import { formatMonth } from "./month.util";
+import { getRandomImage } from "./image.util";
 
 export interface Name {
   name: string;
@@ -22,7 +23,12 @@ export default class NameDay {
 
   constructor() {}
 
-  private formatHtml(html: string, name: Name) {
+  private formatHtml(
+    html: string,
+    name: Name,
+    index: number,
+    imageLink: string
+  ) {
     return html
       .replaceAll("{{day}}", formatMonth(name.day))
       .replaceAll("{{name}}", name.name)
@@ -31,22 +37,43 @@ export default class NameDay {
       .replaceAll("{{area}}", name.area)
       .replaceAll("{{amount}}", name.amount)
       .replaceAll("{{rank}}", name.popularityRank)
-      .replaceAll("{{age}}", name.averageAge);
+      .replaceAll("{{age}}", name.averageAge)
+      .replaceAll("{{index}}", index.toString())
+      .replaceAll("{{max}}", this.names?.length.toString() || "1")
+      .replaceAll("{{image}}", imageLink);
   }
 
-  async createImage(index: number) {
+  async createImages() {
+    if (!this.names) throw new Error("Name not loaded");
+    // const image = await getRandomImage();
+    const images: string[] = [];
+    for (let i = 0; i < this.names.length; i++) {
+      // images.push(await this.createImage(i, image.urls.full));
+      images.push(
+        await this.createImage(
+          i,
+          "https://unsplash.com/photos/_1IF9ReWYY0/download?ixid=MnwxMjA3fDB8MXxzZWFyY2h8M3x8dW5zcGxhc2h8ZW58MHx8fHwxNjU0NjI3MzE3&force=true"
+        )
+      );
+    }
+    console.log(images);
+    return images;
+  }
+
+  async createImage(index: number, image: string) {
     if (!this.names) throw new Error("Name not loaded");
     const html = await fs.readFile("./src/template/name.html", "utf8");
-    const a = await htmlToImage({
-      html: this.formatHtml(html, this.names[index]),
-      output: `./tmp/${Date.now()}.png`,
+    const filename = `./tmp/${Date.now()}-${index}.png`;
+    await htmlToImage({
+      html: this.formatHtml(html, this.names[index], index, image),
+      output: filename,
+      type: "png",
       puppeteerArgs: {
         headless: true,
-        ignoreDefaultArgs: true,
-        // args: ["--headless"],
+        args: ["--headless", "--use-gl=egl"],
       },
     });
-    return a;
+    return filename;
   }
 
   async fetchName(options?: {
@@ -70,13 +97,11 @@ export default class NameDay {
     const nameText = $(".hlavicka").text();
     const subName = $(".dopinfo").text();
 
-    const nameRegex =
-      /((?<=Jméno )[a-zA-ZěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)|((?<= má )\d+)|((?<=je na )\d+)|((?<=je )\d+)/gm;
+    const nameRegex = /((?<=Jméno )[a-zA-ZěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)|((?<= má )\d+)|((?<=je na )\d+)|((?<=je )\d+)/gm;
     const matches = nameText.match(nameRegex);
     if (!matches || matches.length < 4) return null;
 
-    const subNameRegex =
-      /(\d+\.\d+\.)|((?<=p[uů]vod: )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)|((?<=v[yý]znam: )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)|((?<=oblasti )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)/gm;
+    const subNameRegex = /(\d+\.\d+\.)|((?<=p[uů]vod: )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)|((?<=v[yý]znam: )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)|((?<=oblasti )[a-zA-Z ěščřžýáíéóúůďťňĎŇŤŠČŘŽÝÁÍÉÚŮĚÓ]*)/gm;
     const subMatches = subName.match(subNameRegex);
     if (!subMatches || subMatches.length < 4) return null;
 
@@ -114,7 +139,7 @@ export default class NameDay {
       }
     }
 
-    this.names = [name, ...others];
-    return [name, ...others];
+    this.names = [name, ...others].slice(0, 3);
+    return [name, ...others].slice(0, 3);
   }
 }
