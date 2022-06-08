@@ -11,7 +11,7 @@ export class Instagram {
   public async setup() {
     console.log("Settting up brwoser window");
     this.browser = await puppeteer.launch({
-      args: ["--lang=en-EN,en"],
+      args: ["--lang=en-EN,en", "--no-sandbox"],
     });
   }
 
