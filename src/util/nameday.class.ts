@@ -70,7 +70,7 @@ export default class NameDay {
       type: "png",
       puppeteerArgs: {
         headless: true,
-        args: ["--headless", "--use-gl=egl"],
+        args: ["--headless", "--use-gl=egl", "--no-sandbox"],
       },
     });
     return filename;
