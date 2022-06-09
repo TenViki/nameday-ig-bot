@@ -41,10 +41,10 @@ const main = async () => {
     await ig.setup();
     await ig.login();
 
-    new CronJob("0 6 * * *", async () => {
+    new CronJob("28 6 * * *", async () => {
       console.log("Starting job for " + new Date().toLocaleString());
       await loadName();
-    });
+    }, null, true);
   } catch (err) {
     console.log("Something went wrong: ", err);
   }
