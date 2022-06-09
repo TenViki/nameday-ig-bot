@@ -11,6 +11,7 @@ export class Instagram {
   public async setup() {
     console.log("Settting up brwoser window");
     this.browser = await puppeteer.launch({
+      ignoreDefaultArgs: true,
       args: ["--lang=en-EN,en", "--no-sandbox"],
     });
   }
@@ -110,6 +111,25 @@ export class Instagram {
     }
 
     await selectors[1].click();
+
+    await wait(1000);
+
+    while (true) {
+      selectors = await this.page.$$("div[role='button'][tabindex='0'] ");
+      if (selectors.length > 1) selectors = [selectors[1]];
+      let otherSelectors = await this.page.$$(
+        "div[role='presentation'] button"
+      );
+      if (otherSelectors.length > 0) {
+        selectors = otherSelectors;
+      }
+      if (selectors.length >= 1) break;
+      await wait(500);
+    }
+
+    await selectors[0].click();
+
+    await wait(200);
 
     this.takeScreenshot();
   }
