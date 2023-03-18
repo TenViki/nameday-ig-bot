@@ -42,7 +42,7 @@ const loadName = async () => {
   );
 
   // send data to python processer
-  const python = spawn("python", [
+  const python = spawn(process.env.PYTHON_CMD || "python3", [
     "./python/main.py",
     JSON.stringify(imagePaths),
     textData,
