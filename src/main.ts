@@ -68,9 +68,9 @@ const main = async () => {
     // await ig.setup();
     // await ig.login();
 
-    makeJob();
+    // makeJob();
 
-    new CronJob("0 7 * * *", makeJob, null, true);
+    new CronJob("0 5 * * *", makeJob, null, true);
   } catch (err) {
     console.log("Something went wrong: ", err);
   }
