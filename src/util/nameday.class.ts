@@ -63,11 +63,11 @@ export default class NameDay {
   async createImage(index: number, image: string) {
     if (!this.names) throw new Error("Name not loaded");
     const html = await fs.readFile("./src/template/name.html", "utf8");
-    const filename = `./tmp/${Date.now()}-${index}.png`;
+    const filename = `./tmp/${Date.now()}-${index}.jpeg`;
     await htmlToImage({
       html: this.formatHtml(html, this.names[index], index, image),
       output: filename,
-      type: "png",
+      type: "jpeg",
       puppeteerArgs: {
         headless: true,
         args: ["--headless", "--use-gl=egl", "--no-sandbox"],
