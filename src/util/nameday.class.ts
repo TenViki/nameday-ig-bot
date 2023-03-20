@@ -71,6 +71,7 @@ export default class NameDay {
       puppeteerArgs: {
         headless: true,
         args: ["--headless", "--use-gl=egl", "--no-sandbox"],
+        timeout: 0,
       },
     });
     return filename;
