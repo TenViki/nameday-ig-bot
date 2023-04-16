@@ -13,7 +13,7 @@ dotenv.config();
 const loadName = async () => {
   const name = new NameDay();
   const names = await name.fetchName({
-    fetchOther: true,
+    fetchOther: true
   });
 
   if (!names) {
@@ -25,10 +25,12 @@ const loadName = async () => {
   const images = await name.createImages();
   const textData = JSON.stringify(names);
 
+  const text = await name.getWikipediaText(names[0].name);
+
   console.log("Sending files to python processer...");
 
   // convert images to absolute paths
-  const imagePaths = images.map((image) => {
+  const imagePaths = images.map(image => {
     return join(process.cwd(), image);
   });
 
@@ -46,20 +48,26 @@ const loadName = async () => {
     "./python/main.py",
     JSON.stringify(imagePaths),
     textData,
+    text
   ]);
 
-  python.stdout.on("data", (data) => {
+  python.stdout.on("data", data => {
     console.log("[PY]: " + data.toString());
   });
 
-  python.stderr.on("data", (data) => {
+  python.stderr.on("data", data => {
     console.log("[PY ERR]: " + data.toString());
   });
 };
 
 const makeJob = async () => {
-  console.log("Starting job for " + new Date().toLocaleString());
-  await loadName();
+  try {
+    console.log("Starting job for " + new Date().toLocaleString());
+    await loadName();
+  } catch (err) {
+    console.log("Something went wrong: " + (err as any).message);
+    console.log((err as any).stack);
+  }
 };
 
 const main = async () => {
@@ -68,6 +76,9 @@ const main = async () => {
     // await ig.setup();
     // await ig.login();
 
+    if (process.argv[2] == "--now") {
+	makeJob();
+    }
     // makeJob();
 
     new CronJob("0 5 * * *", makeJob, null, true);

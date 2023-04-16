@@ -5,6 +5,7 @@ import htmlToImage from "node-html-to-image";
 import fs from "fs/promises";
 import { formatMonth } from "./month.util";
 import { getRandomImage } from "./image.util";
+import puppeteer from "puppeteer";
 
 export interface Name {
   name: string;
@@ -60,20 +61,69 @@ export default class NameDay {
     return images;
   }
 
+  async htmlToImage(html: string, filename: string) {
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox"]
+    });
+    const page = await browser.newPage();
+
+    await page.setContent(html);
+
+    const content = await page.$("body");
+    const imageBuffer = await content!.screenshot({
+      type: "jpeg",
+      encoding: "binary",
+      omitBackground: true
+    });
+
+    await page.close();
+    await browser.close();
+
+    await fs.writeFile(filename, imageBuffer, "binary");
+  }
+
+  async getWikipediaText(name: string) {
+    const response = await axios.get(
+      encodeURI(
+        `https://cs.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=${name}`
+      )
+    );
+
+    const page = response.data.query.pages;
+    const pageId = Object.keys(page)[0];
+
+    const text = page[pageId]?.extract;
+
+    if (!text) return null;
+
+    return text
+      .replaceAll("<p>", "")
+      .replaceAll("</p>", "\n")
+
+      .replaceAll("<b>", "")
+      .replaceAll("</b>", "")
+
+      .replaceAll("<i>", "")
+      .replaceAll("</i>", "")
+
+      .replaceAll("<ul>", "")
+      .replaceAll("</ul>", "")
+
+      .replaceAll("<li>", "• ")
+      .replaceAll("</li>", "");
+  }
+
   async createImage(index: number, image: string) {
     if (!this.names) throw new Error("Name not loaded");
     const html = await fs.readFile("./src/template/name.html", "utf8");
     const filename = `./tmp/${Date.now()}-${index}.jpeg`;
-    await htmlToImage({
-      html: this.formatHtml(html, this.names[index], index, image),
-      output: filename,
-      type: "jpeg",
-      puppeteerArgs: {
-        headless: true,
-        args: ["--headless", "--use-gl=egl", "--no-sandbox"],
-        timeout: 0,
-      },
-    });
+    console.log("Trying to generate", filename);
+    await this.htmlToImage(
+      this.formatHtml(html, this.names[index], index, image),
+      filename
+    );
+
+    console.log(filename, "generated successfully");
     return filename;
   }
 
@@ -87,8 +137,8 @@ export default class NameDay {
         responseType: "arraybuffer",
         responseEncoding: "binary",
         headers: {
-          "accept-encoding": "gzip, deflate, br",
-        },
+          "accept-encoding": "gzip, deflate, br"
+        }
       }
     );
 
@@ -114,13 +164,17 @@ export default class NameDay {
       day: subMatches[0],
       origin: subMatches[1],
       meaning: subMatches[2],
-      area: subMatches[3],
+      area: subMatches[3]
     };
 
     const others: Name[] = [];
 
     if (options?.fetchOther) {
       const a = $(".dolnitext").children();
+
+      let i = 0;
+
+      // fetch max 3 names
 
       for (const el of a) {
         const text = $(el).text();
@@ -129,9 +183,13 @@ export default class NameDay {
           el.name === "a" &&
           href?.match(/cetnost\.php\?id=\d+&typ=jmeno/gm)
         ) {
+          i++;
+          console.log(i);
+          if (i >= 3) break;
+
           const names = await this.fetchName({
             url: "https://www.nasejmena.cz/nj/" + href,
-            fetchOther: false,
+            fetchOther: false
           });
           if (!names) continue;
 
