@@ -44,6 +44,7 @@ caption = f"""Ke dni {names[0]["day"]} {"mají" if len(name_string) > 1 else "m�
 
 {sys.argv[3]}
 
+Text je přebrán z https://cs.wikipedia.org/ a data z https://www.nasejmena.cz/
 #svatkycz #{" #".join(name["name"] for name in names )} #citat #radost #citatycz #myslienky #memeczsk #srandamusibyt #srandicky #kazdyden #cernyhumor #legrace #cze #motivacia #emefka #sarkazmus #sranda #czechrepublic #volnycas #memecz #zajimavosti #konecne"""
 
 print(caption)
