@@ -77,7 +77,8 @@ const main = async () => {
     // await ig.login();
 
     if (process.argv[2] == "--now") {
-	makeJob();
+      makeJob();
+      return;
     }
     // makeJob();
 
